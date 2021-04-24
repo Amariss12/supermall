@@ -8,6 +8,7 @@
 
 <script>
 import BScroll from 'better-scroll'
+
 export default {
   props:{
     probeType:{
@@ -28,10 +29,12 @@ export default {
     this.scroll = new BScroll(this.$refs.wrapper,{
       click:true,
       probeType:this.probeType,
-      pullUpLoad:this.pullUpLoad
+      pullUpLoad:this.pullUpLoad,
+      mouseWheel: true,//开启鼠标滚轮
+              disableMouse: false,//启用鼠标拖动
+              disableTouch: false//启用手指触摸
     })
     this.scroll.on('scroll',(position)=>{
-      console.log(position)
       this.$emit('scroll',position)
     })
     this.scroll.on('pullingUp',()=>{
@@ -55,6 +58,8 @@ export default {
 }
 </script>
 
-<style>
-
+<style scoped>
+.content{
+  overflow: hidden;
+}
 </style>

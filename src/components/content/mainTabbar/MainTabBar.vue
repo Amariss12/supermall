@@ -36,6 +36,6 @@ components:{
 }
 </script>
 
-<style>
+<style scoped>
 
 </style>

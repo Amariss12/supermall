@@ -32,9 +32,8 @@ import TabControl from '../../components/content/tabControl/TabControl.vue'
 import GoodsList from '../../components/content/goods/GoodsList.vue'
 
 import {getHomeMultidata,getHomeGoods} from 'network/home'
-import {debounce} from 'common/utils'
 import Scroll from '../../components/common/scroll/Scroll.vue'
-import BackTop from '../../components/content/backTop/BackTop.vue'
+import {itemListenerMixin,backTopMinin} from 'common/mixin'
 
 export default {
   name:"Home",
@@ -46,8 +45,8 @@ export default {
     TabControl,
     GoodsList,
     Scroll,
-    BackTop
   },
+  mixins:[itemListenerMixin,backTopMinin],
   data(){
     return {
       banners:[],
@@ -58,10 +57,10 @@ export default {
         'sell':{page:0,list:[]}
       },
       currentType:'pop',
-      isShowBackTop:false,
       tabOffsetTop:0,
       isTabFixed:false,
-      saveY:0
+      saveY:0,
+      
     }
   },
   computed:{
@@ -71,14 +70,13 @@ export default {
  
   },
    activated(){
-     this.$refs.scroll.refresh()
     this.$refs.scroll.scrollTo(0,this.saveY,1)
     this.$refs.scroll.refresh()
    
   },
   deactivated(){
     this.saveY = this.$refs.scroll.getScrollY()
-   
+   this.$bus.$off('itemImageLoad',this.itemImgListener)
   },
   created(){
    
@@ -89,11 +87,9 @@ export default {
   
   },
   mounted(){
-    const refresh = debounce(this.$refs.scroll.refresh)
-     this.$bus.$on('itemImageLoad',()=>{
-    refresh()
-  })
+   
   },
+  
   methods:{
 
     /**
@@ -115,16 +111,14 @@ export default {
       this.$refs.tabControl1.currentIndex = index
       this.$refs.tabControl2.currentIndex = index
     },
-    backClick(){
-      this.$refs.scroll.scrollTo(0,0)
-    },
+   
     contentScroll(position){
       /**
        * 1.判断BackTop是否显示
        */
       this.isShowBackTop = (-position.y)>1000
       /**2.决定tabControl是否吸顶(position:fixed) */
-      this.isTabFixed = (-position.y) > 635
+      this.isTabFixed = (-position.y) > this.tabOffsetTop
     },
     loadMore(){
       this.getHomeGoods(this.currentType)
@@ -170,12 +164,12 @@ getHomeGoods(type,page).then(res=>{
 .home-nav{
   background-color: var(--color-tint);
   color:#fff;
-
   position: fixed;
   left: 0;
   right: 0;
   top: 0;
   z-index: 9;
+
 }
 
 
@@ -186,10 +180,13 @@ getHomeGoods(type,page).then(res=>{
   bottom: 49px;
   left: 0;
   right: 0;
+
+
 }
 .tab-control{
   position: relative;
   z-index:9;
+ 
 }
 
 </style>
